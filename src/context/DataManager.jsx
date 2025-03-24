@@ -8,7 +8,7 @@ export const DataProvider = ({ children }) => {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const response = await fetch("https://my-json-server.typicode.com/YOUR_GITHUB_USERNAME/YOUR_REPO/users");
+        const response = await fetch("https://my-json-server.typicode.com/DandelionEater/d_g_react_uzd_3/users");
       const data = await response.json();
       setUsers(data);
       setLoading(false);

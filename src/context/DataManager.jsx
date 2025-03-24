@@ -1,32 +1,39 @@
-import { useEffect, useState, useCallback, createContext, useContext } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { fetchUsers } from "../api";
 
 const DataContext = createContext();
 
 export const DataProvider = ({ children }) => {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-  const fetchUsers = useCallback(async () => {
-    try {
-        const response = await fetch("https://my-json-server.typicode.com/DandelionEater/d_g_react_uzd_3/users");
-      const data = await response.json();
-      setUsers(data);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching users:", error);
-      setLoading(false);
-    }
-  }, []);
+    useEffect(() => {
+        async function loadUsers() {
+            try {
+                const fetchedUsers = await fetchUsers();
+                const transformedUsers = fetchedUsers.map(user => ({
+                    id: user.id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    city: user.address?.city || "Unknown"
+                }));
+                setUsers(transformedUsers);
+            } catch (error) {
+                console.error("Error loading users:", error);
+            } finally {
+                setLoading(false);
+            }
+        }
 
-  useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+        loadUsers();
+    }, []);
 
-  return (
-    <DataContext.Provider value={{ users, loading }}>
-      {children}
-    </DataContext.Provider>
-  );
+    return (
+        <DataContext.Provider value={{ users, loading }}>
+            {children}
+        </DataContext.Provider>
+    );
 };
 
 export const useData = () => useContext(DataContext);
